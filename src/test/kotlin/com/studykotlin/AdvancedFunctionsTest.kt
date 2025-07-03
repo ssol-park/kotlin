@@ -1,6 +1,7 @@
 package com.studykotlin
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 class AdvancedFunctionsTest {
@@ -34,5 +35,51 @@ class AdvancedFunctionsTest {
         // 일부는 순서대로, 일부는 named
         val server2 = configureServer("api.test.com", 9000, "HTTP", retries = 1, timeout = 2000, enableSsl = false)
         assertThat(server2).contains("api.test.com:9000", "timeout=2000")
+
+        val server3 = configureServer(
+            host = "api.test.com",
+            port = 9000,
+            protocol = "HTTP",
+            retries = 1,
+            timeout = 2000,
+            enableSsl = false,
+        )
+    }
+
+    /**
+     * 3. 가변 인수 (Vararg)
+     * 동일한 타입의 인자를 0개 이상, 개수 제한 없이 유연하게 전달받을 수 있도록 하는 기능입니다.
+     *
+     * - 배열로 처리: 함수 내부에서 vararg로 전달된 값들은 배열(Array)로 취급됩니다.
+     * - 유연한 인자 전달: 함수 호출 시 인자를 전달하지 않거나, 1개 또는 여러 개를 콤마(,)로 구분하여 전달할 수 있습니다.
+     * - 스프레드 연산자 (*): 이미 생성된 배열을 vararg 인자로 전달할 때는, 배열 앞에 *를 붙여 배열의 요소들을 펼쳐서 전달해야 합니다.
+     */
+    @Test
+    @DisplayName("가변 인수: 인자를 0개, 여러 개, 또는 배열로 유연하게 전달할 수 있다")
+    fun 가변_인수_vararg() {
+
+        fun log(level: String, vararg messages: String): String {
+            val combinedMessage = messages.joinToString(" - ")
+            return "[$level] $combinedMessage"
+        }
+
+        // 1. 인자를 전달하지 않는 경우
+        val log1 = log("INFO")
+        assertThat(log1).isEqualTo("[INFO] ")
+        println(log1)
+
+        // 2. 여러 개의 인자를 직접 전달하는 경우
+        val log2 = log("DEBUG", "사용자 조회", "캐시 확인", "DB 접근")
+        assertThat(log2).isEqualTo("[DEBUG] 사용자 조회 - 캐시 확인 - DB 접근")
+        println(log2)
+
+        // 3. 이미 생성된 배열을 전달하는 경우 (스프레드 연산자 * 사용)
+        // * 연산자는 배열의 각 요소를 꺼내어 인자로 전달하는 역할
+        val messageArray = arrayOf("메모리 부족", "가비지 컬렉션 실행")
+
+        val log3 = log("WARN", *messageArray)
+
+        assertThat(log3).isEqualTo("[WARN] 메모리 부족 - 가비지 컬렉션 실행")
+        println(log3)
     }
 }
